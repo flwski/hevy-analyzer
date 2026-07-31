@@ -1,43 +1,23 @@
-# Hevy Insights
+# Hevy Analytics
 
-Dashboard pessoal de acompanhamento de treinos, construído sobre a [API do Hevy](https://api.hevyapp.com/docs/#/). Next.js (App Router) com interface web responsiva (desktop e mobile) e rotas de API em Node.js que fazem proxy seguro para a API do Hevy — a API key nunca é exposta ao navegador.
+Dashboard responsiva para acompanhar treinos do Hevy. A aplicação usa Next.js (interface React + backend Node.js) e mantém a API key exclusivamente no servidor.
 
-## Funcionalidades
+## Rodar localmente
 
-- **Painel**: total de treinos, treinos da semana, sequência de semanas ativas, duração média, volume semanal (gráfico) e exercícios mais frequentes.
-- **Treinos**: histórico paginado e detalhe completo de cada treino (exercícios, séries, peso, reps, RPE).
-- **Exercícios**: busca de exercícios e página de evolução com gráfico de carga máxima por sessão, recordes pessoais (PRs) e histórico de sessões.
-- **Rotinas**: rotinas salvas agrupadas por pasta, com exercícios e séries.
-- **Medidas**: peso corporal e demais medidas ao longo do tempo, com gráfico e tabela.
-- Alternância de unidade **kg / lb** persistida localmente.
+1. Instale Node.js 20.9 ou superior.
+2. Rode `npm install`.
+3. Copie `.env.example` para `.env.local` e defina um segredo aleatório de pelo menos 32 caracteres.
+4. Rode `npm run dev` e abra `http://localhost:3000`.
 
-## Rodando localmente
+## Variáveis
 
-1. Copie `.env.example` para `.env.local` e defina sua chave (Hevy Pro → `hevy.com/settings?developer`):
+- `HEVY_SESSION_SECRET`: segredo usado para criptografar os cookies de sessão (obrigatório, mínimo de 32 caracteres).
+- `HEVY_MAX_WORKOUT_PAGES`: máximo de páginas de 10 treinos carregadas (padrão: 20; máximo: 100).
 
-   ```bash
-   HEVY_API_KEY=sua-chave-uuid
-   ```
+## Vercel
 
-2. Instale as dependências e rode o servidor de desenvolvimento:
+Importe o repositório na Vercel e cadastre as mesmas variáveis em Project Settings → Environment Variables. Não use prefixo `NEXT_PUBLIC_` na chave.
 
-   ```bash
-   npm install
-   npm run dev
-   ```
+## Segurança
 
-3. Abra [http://localhost:3000](http://localhost:3000).
-
-## Deploy na Vercel
-
-1. Importe este repositório na [Vercel](https://vercel.com/new).
-2. Em **Environment Variables**, adicione `HEVY_API_KEY` com sua chave da API do Hevy.
-3. Deploy. As rotas em `src/app/api/*` rodam como funções serverless e são as únicas com acesso à chave.
-
-## Stack
-
-- Next.js 16 (App Router, Route Handlers)
-- TypeScript
-- Tailwind CSS v4
-- Recharts (gráficos)
-- SWR (data fetching no cliente)
+A chave é informada na tela de acesso, validada diretamente no Hevy e armazenada somente em cookie de sessão criptografado, `HttpOnly` e `SameSite=Lax`. Ela não fica disponível ao JavaScript. Sair apaga o cookie; as preferências ficam em `sessionStorage` e são removidas no logout.

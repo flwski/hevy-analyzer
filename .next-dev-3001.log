@@ -1,0 +1,213 @@
+
+> hevy-analyzer@1.0.0 dev
+> next dev -p 3001
+
+▲ Next.js 16.2.12 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://10.6.1.12:3001
+- Environments: .env.local
+✓ Ready in 9.7s
+
+ GET / 200 in 2.4s (next.js: 1700ms, application-code: 703ms)
+ GET /api/dashboard 200 in 3.0s (next.js: 992ms, application-code: 1976ms)
+ GET / 200 in 567ms (next.js: 56ms, application-code: 512ms)
+ GET /api/dashboard 200 in 674ms (next.js: 20ms, application-code: 655ms)
+ GET /api/dashboard 200 in 83ms (next.js: 17ms, application-code: 66ms)
+✓ Compiled in 508ms
+ GET /api/dashboard 200 in 267ms (next.js: 199ms, application-code: 67ms)
+ GET / 200 in 1197ms (next.js: 527ms, application-code: 670ms)
+ GET / 200 in 576ms (next.js: 34ms, application-code: 543ms)
+ GET /api/dashboard 200 in 90ms (next.js: 16ms, application-code: 73ms)
+[browser] Encountered two children with the same key, `a808b2c0-b5d2-4607-bfe1-c97d139ddaa8`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `9e0e3ff0-831e-483e-9a04-2ac418dc66bc`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `0e1568e8-597a-4f82-bf0e-f9823ae5fd65`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+ GET / 200 in 456ms (next.js: 45ms, application-code: 411ms)
+ GET /api/dashboard 200 in 125ms (next.js: 21ms, application-code: 104ms)
+✓ Compiled in 88ms
+[browser] Encountered two children with the same key, `9e0e3ff0-831e-483e-9a04-2ac418dc66bc`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `0e1568e8-597a-4f82-bf0e-f9823ae5fd65`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+ GET /api/dashboard 200 in 48ms (next.js: 12ms, application-code: 36ms)
+ GET / 200 in 102ms (next.js: 24ms, application-code: 78ms)
+ GET /api/dashboard 200 in 1277ms (next.js: 67ms, application-code: 1210ms)
+ GET /api/dashboard 200 in 245ms (next.js: 38ms, application-code: 207ms)
+✓ Compiled in 781ms
+ GET /api/dashboard 200 in 403ms (next.js: 301ms, application-code: 102ms)
+ GET / 200 in 1786ms (next.js: 708ms, application-code: 1078ms)
+ GET / 200 in 847ms (next.js: 429ms, application-code: 418ms)
+ GET / 200 in 276ms (next.js: 60ms, application-code: 216ms)
+✓ Compiled in 141ms
+ GET /api/dashboard 200 in 343ms (next.js: 234ms, application-code: 109ms)
+ GET / 200 in 1079ms (next.js: 541ms, application-code: 538ms)
+ GET / 200 in 323ms (next.js: 17ms, application-code: 306ms)
+✓ Compiled in 41ms
+ GET / 200 in 147ms (next.js: 15ms, application-code: 132ms)
+[browser] Encountered two children with the same key, `9e0e3ff0-831e-483e-9a04-2ac418dc66bc`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `0e1568e8-597a-4f82-bf0e-f9823ae5fd65`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+ GET / 200 in 95ms (next.js: 16ms, application-code: 79ms)
+ GET /api/dashboard 200 in 83ms (next.js: 12ms, application-code: 71ms)
+✓ Compiled in 573ms
+ GET /api/dashboard 200 in 345ms (next.js: 269ms, application-code: 76ms)
+ GET / 200 in 2.4s (next.js: 1021ms, application-code: 1357ms)
+ GET / 200 in 1069ms (next.js: 451ms, application-code: 618ms)
+ GET / 200 in 451ms (next.js: 354ms, application-code: 97ms)
+✓ Compiled in 44ms
+ GET /api/dashboard 200 in 228ms (next.js: 28ms, application-code: 201ms)
+ GET /api/dashboard 200 in 81ms (next.js: 16ms, application-code: 64ms)
+ GET /api/dashboard 200 in 81ms (next.js: 11ms, application-code: 71ms)
+ GET / 200 in 301ms (next.js: 12ms, application-code: 289ms)
+✓ Compiled in 331ms
+ GET / 200 in 1799ms (next.js: 981ms, application-code: 818ms)
+ GET /api/dashboard 200 in 1326ms (next.js: 295ms, application-code: 1030ms)
+✓ Compiled in 41ms
+ GET / 200 in 174ms (next.js: 15ms, application-code: 158ms)
+ GET /api/dashboard 200 in 1326ms (next.js: 39ms, application-code: 1287ms)
+[browser] Encountered two children with the same key, `a808b2c0-b5d2-4607-bfe1-c97d139ddaa8`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+ GET / 200 in 96ms (next.js: 14ms, application-code: 82ms)
+ GET / 200 in 153ms (next.js: 25ms, application-code: 128ms)
+ GET /api/dashboard 200 in 1276ms (next.js: 15ms, application-code: 1261ms)
+[browser] Encountered two children with the same key, `9e0e3ff0-831e-483e-9a04-2ac418dc66bc`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `0e1568e8-597a-4f82-bf0e-f9823ae5fd65`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+✓ Compiled in 314ms
+ GET /api/dashboard 200 in 318ms (next.js: 206ms, application-code: 111ms)
+ GET / 200 in 1194ms (next.js: 646ms, application-code: 548ms)
+ GET / 200 in 392ms (next.js: 25ms, application-code: 367ms)
+ GET / 200 in 355ms (next.js: 19ms, application-code: 336ms)
+ GET /api/dashboard 200 in 1461ms (next.js: 23ms, application-code: 1438ms)
+ GET /api/dashboard 200 in 34ms (next.js: 8ms, application-code: 26ms)
+ GET /api/dashboard 200 in 36ms (next.js: 7ms, application-code: 29ms)
+ GET /api/dashboard 200 in 35ms (next.js: 6ms, application-code: 29ms)
+ GET / 200 in 135ms (next.js: 16ms, application-code: 119ms)
+ GET /api/dashboard 200 in 209ms (next.js: 49ms, application-code: 160ms)
+ GET / 200 in 1482ms (next.js: 417ms, application-code: 1065ms)
+ GET / 200 in 920ms (next.js: 41ms, application-code: 879ms)
+ GET / 200 in 795ms (next.js: 146ms, application-code: 650ms)
+ GET / 200 in 794ms (next.js: 313ms, application-code: 481ms)
+ GET / 200 in 794ms (next.js: 407ms, application-code: 387ms)
+ GET / 200 in 789ms (next.js: 497ms, application-code: 292ms)
+ GET / 200 in 304ms (next.js: 26ms, application-code: 278ms)
+ GET / 200 in 206ms (next.js: 19ms, application-code: 187ms)
+ GET / 200 in 114ms (next.js: 20ms, application-code: 94ms)
+✓ Compiled in 557ms
+ GET / 200 in 766ms (next.js: 467ms, application-code: 299ms)
+ GET / 200 in 197ms (next.js: 37ms, application-code: 160ms)
+ GET / 200 in 73ms (next.js: 12ms, application-code: 61ms)
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'map')
+    at DeepAnalytics (components/Dashboard.tsx:70:54)
+    at Dashboard (components/Dashboard.tsx:143:16)
+    at Home (app\page.tsx:3:41)
+  68 | ...leNames: Record<string, string> = { chest: "Peito", shoulders: "Ombros", biceps: "Bícep...
+  69 | ...eepAnalytics({ data, workouts }: { data: DashboardPayload; workouts: HevyWorkout[] }) {
+> 70 | ...mplateMap = new Map(data.exerciseTemplates.map(t => [t.id, t]));
+     |                                               ^
+  71 | ...scleVolume = new Map<string, number>(); const equipment = new Map<string, number>();
+  72 | ....forEach(w => w.exercises.forEach(e => { const t = templateMap.get(e.exercise_template_...
+  73 | ...scles = [...muscleVolume].sort((a,b) => b[1] - a[1]); const maxMuscle = Math.max(...mus...
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 51ms
+ GET / 200 in 380ms (next.js: 37ms, application-code: 343ms)
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'map')
+    at DeepAnalytics (components/Dashboard.tsx:70:54)
+    at Dashboard (components/Dashboard.tsx:143:16)
+    at Home (app\page.tsx:3:41)
+  68 | ...leNames: Record<string, string> = { chest: "Peito", shoulders: "Ombros", biceps: "Bícep...
+  69 | ...eepAnalytics({ data, workouts }: { data: DashboardPayload; workouts: HevyWorkout[] }) {
+> 70 | ...mplateMap = new Map(data.exerciseTemplates.map(t => [t.id, t]));
+     |                                               ^
+  71 | ...scleVolume = new Map<string, number>(); const equipment = new Map<string, number>();
+  72 | ....forEach(w => w.exercises.forEach(e => { const t = templateMap.get(e.exercise_template_...
+  73 | ...scles = [...muscleVolume].sort((a,b) => b[1] - a[1]); const maxMuscle = Math.max(...mus...
+ GET /api/dashboard 200 in 934ms (next.js: 174ms, application-code: 760ms)
+ GET / 200 in 137ms (next.js: 26ms, application-code: 111ms)
+ GET /api/dashboard 200 in 1130ms (next.js: 22ms, application-code: 1108ms)
+ GET /api/dashboard 200 in 74ms (next.js: 11ms, application-code: 63ms)
+✓ Compiled in 251ms
+ GET /api/dashboard 200 in 332ms (next.js: 256ms, application-code: 76ms)
+ GET / 200 in 1340ms (next.js: 484ms, application-code: 856ms)
+ GET / 200 in 685ms (next.js: 345ms, application-code: 339ms)
+ GET /api/dashboard 200 in 128ms (next.js: 19ms, application-code: 109ms)
+✓ Compiled in 99ms
+ GET / 200 in 782ms (next.js: 633ms, application-code: 149ms)
+[browser] Encountered two children with the same key, `a808b2c0-b5d2-4607-bfe1-c97d139ddaa8`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+ GET /api/exercises/C7973E0E/history 200 in 123ms (next.js: 78ms, application-code: 45ms)
+ GET /api/exercises/C7973E0E/history 200 in 13.6s (next.js: 12.7s, application-code: 875ms)
+ GET /api/dashboard 200 in 865ms (next.js: 161ms, application-code: 705ms)
+ GET /api/exercises/94B7239B/history 200 in 1020ms (next.js: 210ms, application-code: 810ms)
+ GET /api/exercises/94B7239B/history 200 in 168ms (next.js: 42ms, application-code: 126ms)
+ GET /api/dashboard 200 in 106ms (next.js: 12ms, application-code: 93ms)
+ GET /api/exercises/243710DE/history 200 in 314ms (next.js: 8ms, application-code: 306ms)
+ GET / 200 in 491ms (next.js: 15ms, application-code: 475ms)
+ GET /api/dashboard 200 in 86ms (next.js: 10ms, application-code: 76ms)
+ GET /api/exercises/94B7239B/history 200 in 94ms (next.js: 41ms, application-code: 54ms)
+ GET /api/exercises/94B7239B/history 200 in 53ms (next.js: 15ms, application-code: 38ms)
+ GET /api/dashboard 200 in 81ms (next.js: 14ms, application-code: 67ms)
+✓ Compiled in 676ms
+ GET / 200 in 1355ms (next.js: 420ms, application-code: 935ms)
+ GET / 200 in 849ms (next.js: 451ms, application-code: 398ms)
+ GET / 200 in 176ms (next.js: 32ms, application-code: 144ms)
+✓ Compiled in 73ms
+ GET / 200 in 256ms (next.js: 16ms, application-code: 240ms)
+ GET /api/dashboard 200 in 2.0s (next.js: 586ms, application-code: 1443ms)
+ GET / 200 in 2.2s (next.js: 666ms, application-code: 1522ms)
+ GET / 200 in 838ms (next.js: 271ms, application-code: 568ms)
+ GET / 200 in 422ms (next.js: 39ms, application-code: 383ms)
+ GET / 200 in 418ms (next.js: 201ms, application-code: 217ms)
+ GET / 200 in 424ms (next.js: 141ms, application-code: 283ms)
+ GET / 200 in 419ms (next.js: 257ms, application-code: 162ms)
+ GET / 200 in 1071ms (next.js: 17ms, application-code: 1053ms)
+ GET / 200 in 1140ms (next.js: 45ms, application-code: 1095ms)
+ GET / 200 in 955ms (next.js: 56ms, application-code: 899ms)
+ GET / 200 in 943ms (next.js: 379ms, application-code: 564ms)
+ GET / 200 in 960ms (next.js: 220ms, application-code: 740ms)
+ GET / 200 in 939ms (next.js: 591ms, application-code: 348ms)
+ GET / 200 in 688ms (next.js: 29ms, application-code: 659ms)
+ GET / 200 in 527ms (next.js: 40ms, application-code: 487ms)
+ GET / 200 in 404ms (next.js: 39ms, application-code: 366ms)
+ GET / 200 in 404ms (next.js: 122ms, application-code: 282ms)
+ GET / 200 in 406ms (next.js: 201ms, application-code: 205ms)
+ GET / 200 in 410ms (next.js: 302ms, application-code: 108ms)
+  Reload env: .env.local
+ GET / 200 in 548ms (next.js: 400ms, application-code: 148ms)
+✓ Compiled in 408ms
+ GET /api/dashboard 401 in 232ms (next.js: 146ms, application-code: 86ms)
+ GET / 200 in 599ms (next.js: 253ms, application-code: 346ms)
+ GET / 200 in 356ms (next.js: 174ms, application-code: 183ms)
+ GET / 200 in 118ms (next.js: 23ms, application-code: 95ms)
+✓ Compiled in 163ms
+ GET /api/dashboard 401 in 189ms (next.js: 151ms, application-code: 39ms)
+ GET / 200 in 640ms (next.js: 287ms, application-code: 353ms)
+ POST /api/auth 200 in 1749ms (next.js: 1358ms, application-code: 391ms)
+ GET /api/dashboard 200 in 1011ms (next.js: 32ms, application-code: 979ms)
+ GET /api/dashboard 401 in 40ms (next.js: 9ms, application-code: 31ms)
+ POST /api/auth 401 in 29ms (next.js: 7ms, application-code: 22ms)
+ DELETE /api/auth 200 in 44ms (next.js: 12ms, application-code: 32ms)
+ POST /api/auth 200 in 105ms (next.js: 14ms, application-code: 91ms)
+ GET /api/dashboard 200 in 171ms (next.js: 12ms, application-code: 159ms)
+✓ Compiled in 484ms
+ GET / 200 in 1324ms (next.js: 952ms, application-code: 372ms)
+✓ Compiled in 609ms
+ GET /api/dashboard 200 in 467ms (next.js: 233ms, application-code: 233ms)
+ GET / 200 in 1402ms (next.js: 740ms, application-code: 662ms)
+✓ Compiled in 84ms
+ GET / 200 in 565ms (next.js: 88ms, application-code: 477ms)
+ GET /api/exercises/0393F233/history 200 in 1559ms (next.js: 295ms, application-code: 1263ms)
+ GET /api/exercises/0393F233/history 200 in 90ms (next.js: 21ms, application-code: 69ms)
+ DELETE /api/auth 200 in 546ms (next.js: 397ms, application-code: 149ms)
+ POST /api/auth 200 in 522ms (next.js: 15ms, application-code: 507ms)
+ GET /api/dashboard 200 in 732ms (next.js: 19ms, application-code: 713ms)
+ DELETE /api/auth 200 in 77ms (next.js: 18ms, application-code: 59ms)
+  Reload env: .env.local
+  Reload env: .env.local
+ GET / 200 in 2.8s (next.js: 2.2s, application-code: 573ms)
+ GET / 200 in 204ms (next.js: 34ms, application-code: 171ms)
+ POST /api/auth 200 in 1270ms (next.js: 735ms, application-code: 535ms)
+ GET /api/dashboard 200 in 1307ms (next.js: 339ms, application-code: 968ms)
+Error: Turbopack build failed with 1 errors:
+./app
+Error: Next.js inferred your workspace root, but it may not be correct.
+    We couldn't find the Next.js package (next/package.json) from the project directory: C:\repos-personal\hevy-analyzer-2\app
+     To fix this, set turbopack.root in your Next.js config, or ensure the Next.js package is resolvable from this directory.
+    Note: For security and performance reasons, files outside of the project directory will not be compiled.
+    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+
+    at ignore-listed frames
+[?25h
