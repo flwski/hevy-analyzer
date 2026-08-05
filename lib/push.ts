@@ -84,14 +84,14 @@ async function recentWorkouts(apiKey: string) {
   return payload.workouts ?? [];
 }
 
-async function sendCoachNotification(rows: SubscriptionRow[], slot: CoachSlot, date: string) {
+async function sendCoachNotification(rows: SubscriptionRow[], slot: CoachSlot, date: string, deliveryId?: string) {
   const eligible = rows.filter(row => slot === 11 || slot === 15 ? row.notify_streak : row.notify_recovery);
   if (!eligible.length) return { sent: 0, skipped: "preference" };
   const apiKey = await decryptApiKey(eligible[0].encrypted_api_key);
   if (!apiKey) return { sent: 0, skipped: "invalid-key" };
   const message = scheduledCoachMessage(slot, await recentWorkouts(apiKey));
-  const key = `coach-${date}-${slot}`;
-  const kind = `coach_${slot}`;
+  const key = `coach-${date}-${slot}${deliveryId ? `-${deliveryId}` : ""}`;
+  const kind = deliveryId ? "coach_test" : `coach_${slot}`;
   const inserted = await db()`INSERT INTO notifications (user_id, workout_id, kind, title, body, href) VALUES (${eligible[0].user_id}, ${key}, ${kind}, ${message.title}, ${message.body}, '/coach') ON CONFLICT (user_id, workout_id, kind) DO NOTHING RETURNING id` as unknown as Record<string, unknown>[];
   if (!inserted.length) return { sent: 0, skipped: "duplicate" };
   configurePush();
@@ -108,7 +108,7 @@ async function sendCoachNotification(rows: SubscriptionRow[], slot: CoachSlot, d
   return { sent: deliveries.reduce<number>((sum, sent) => sum + sent, 0) };
 }
 
-export async function processScheduledCoachNotifications(now = new Date(), forcedSlot?: number) {
+export async function processScheduledCoachNotifications(now = new Date(), forcedSlot?: number, deliveryId?: string) {
   const { date, hour } = saoPauloParts(now);
   const selectedHour = forcedSlot ?? hour;
   if (![8, 11, 15, 19].includes(selectedHour)) return { slot: null, subscriptions: 0, sent: 0 };
@@ -117,6 +117,6 @@ export async function processScheduledCoachNotifications(now = new Date(), force
   const grouped = new Map<string, SubscriptionRow[]>();
   rows.forEach(row => grouped.set(row.user_id, [...(grouped.get(row.user_id) ?? []), row]));
   const groups = [...grouped.values()];
-  const results = await Promise.allSettled(groups.map(group => sendCoachNotification(group, slot, date)));
+  const results = await Promise.allSettled(groups.map(group => sendCoachNotification(group, slot, date, deliveryId)));
   return { slot, subscriptions: rows.length, sent: results.reduce((sum, result) => sum + (result.status === "fulfilled" ? result.value.sent : 0), 0) };
 }
