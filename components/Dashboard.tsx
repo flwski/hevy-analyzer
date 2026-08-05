@@ -38,6 +38,7 @@ import type {
   HevyWorkout,
 } from "@/lib/types";
 import AppSidebar, { AppLogo } from "./AppSidebar";
+import NotificationCenter from "./NotificationCenter";
 
 const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 const compact = new Intl.NumberFormat("pt-BR", {
@@ -2019,6 +2020,7 @@ export default function Dashboard() {
             <button className="icon-button" onClick={load} title="Atualizar">
               <RefreshCw className={loading ? "spin" : ""} />
             </button>
+            <NotificationCenter />
             <button
               className="icon-button logout-button"
               onClick={logout}

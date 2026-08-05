@@ -4363,3 +4363,37 @@ html[data-theme="light"] .coach-hero{background:radial-gradient(circle at 12% 50
     width:calc(100vw - 20px);max-height:calc(100dvh - 170px);border-radius:18px
   }
 }
+
+/* Global action polish */
+.header-actions>.notification-head{
+  position:relative;inset:auto;flex:none;width:42px;height:42px;border-radius:10px;
+  box-shadow:none;background:var(--surface)
+}
+.header-actions>.notification-head:hover{transform:none}
+.header-actions>.notification-head>i{right:7px;bottom:6px}
+.coach-chat-head.global{
+  min-width:0;width:58px;height:58px;padding:0;border:0;border-radius:50%;
+  grid-template-columns:1fr;background:transparent;box-shadow:none
+}
+.coach-chat-head.global>span{
+  width:58px;height:58px;border-radius:50%;
+  box-shadow:0 14px 36px #0009,0 0 0 5px color-mix(in srgb,var(--lime) 10%,transparent)
+}
+.coach-chat-head.global>span svg{width:26px}
+.coach-chat-head.global>span i,.coach-chat-head.global>em,
+.coach-chat-head.global>div,.coach-chat-head.global>svg{display:none}
+
+@media(max-width:720px){
+  .header-actions{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;width:100%
+  }
+  .header-actions select{grid-column:1/-1;width:100%;min-width:0}
+  .header-actions .icon-button,.header-actions>.notification-head{width:100%;min-width:0}
+  .notification-panel{
+    top:max(10px,env(safe-area-inset-top));bottom:calc(78px + env(safe-area-inset-bottom));
+    max-height:none
+  }
+  .content,.section-page,.coach-page,.profile-content{max-width:100%;overflow-x:clip}
+  .panel,.stat-card,.personal-card,.coach-hero,.profile-hero{min-width:0}
+  img,svg{max-width:100%}
+}
