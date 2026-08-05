@@ -4333,8 +4333,17 @@ html[data-theme="light"] .coach-hero{background:radial-gradient(circle at 12% 50
   .notification-head>i{right:7px;bottom:6px}
   .notification-head b{right:-4px;top:-5px}
   .notification-panel{
-    top:calc(max(16px,env(safe-area-inset-top)) + 50px);right:10px;bottom:auto;left:10px!important;
-    width:auto;max-height:calc(100dvh - 142px);border-radius:18px
+    top:calc(max(16px,env(safe-area-inset-top)) + 50px);right:10px;
+    bottom:calc(78px + env(safe-area-inset-bottom));left:10px!important;
+    width:auto;height:auto;max-height:none;border-radius:18px
+  }
+  .notification-panel>header,.notification-tools,.notification-settings,.read-all{flex:none}
+  .notification-panel .notification-list{
+    flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch
+  }
+  .notification-panel .notification-callout{
+    flex:1;min-height:0;overflow-y:auto;align-content:center
   }
   .coach-chat-head.global{
     right:14px;bottom:calc(76px + env(safe-area-inset-bottom));
