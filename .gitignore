@@ -4,6 +4,9 @@ node_modules
 .env*
 !.env.example
 npm-debug.log*
+.next-dev-*.log
+public/assets/muscle-map-source.png
+public/assets/muscle-mask-preview.png
 *.tsbuildinfo
 
 .vercel
