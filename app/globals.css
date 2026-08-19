@@ -4366,6 +4366,14 @@ html[data-theme="light"] .coach-hero{background:radial-gradient(circle at 12% 50
 }
 
 /* Global action polish */
+.notification-center{position:relative;display:flex;width:42px;height:42px;flex:none}
+.notification-center>.notification-head{
+  position:static!important;inset:auto!important;width:42px!important;height:42px!important;
+  margin:0!important;transform:none!important;box-shadow:none!important;border-radius:10px!important;background:var(--surface)!important
+}
+.notification-center>.notification-panel{
+  position:absolute!important;top:52px!important;right:0!important;bottom:auto!important;left:auto!important
+}
 .header-actions>.notification-head{
   position:relative;inset:auto;flex:none;width:42px;height:42px;border-radius:10px;
   box-shadow:none;background:var(--surface)
@@ -4392,8 +4400,9 @@ html[data-theme="light"] .coach-hero{background:radial-gradient(circle at 12% 50
     display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;width:100%
   }
   .header-actions select{grid-column:1/-1;width:100%;min-width:0}
-  .header-actions .icon-button,.header-actions>.notification-head{width:100%;min-width:0}
-  .notification-panel{
+  .header-actions .icon-button,.notification-center{width:100%;min-width:0}
+  .notification-center>.notification-head{width:100%!important;min-width:0!important}
+  .notification-center>.notification-panel{
     position:fixed!important;
     top:max(10px,env(safe-area-inset-top));bottom:calc(78px + env(safe-area-inset-bottom));
     right:10px!important;left:10px!important;
