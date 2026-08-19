@@ -1357,6 +1357,106 @@ function PersonalInsights({
   );
 }
 
+function WeightGoalJourney({
+  data,
+  target,
+  onConfigure,
+}: {
+  data: DashboardPayload;
+  target: number | null;
+  onConfigure: () => void;
+}) {
+  const [hovered, setHovered] = useState<number | null>(null);
+  const entries = data.bodyMeasurements
+    .filter((measurement) => measurement.weight_kg != null)
+    .slice(-24)
+    .map((measurement) => ({
+      date: new Date(`${measurement.date}T12:00:00`),
+      label: new Date(`${measurement.date}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }),
+      value: measurement.weight_kg!,
+    }));
+  const start = entries[0]?.value ?? null;
+  const current = entries.at(-1)?.value ?? null;
+  const direction = target != null && start != null ? Math.sign(target - start) : 0;
+  const totalDistance = target != null && start != null ? Math.abs(target - start) : 0;
+  const covered = target != null && start != null && current != null
+    ? Math.max(0, Math.min(totalDistance, direction * (current - start)))
+    : 0;
+  const progress = totalDistance > 0 ? Math.min(100, (covered / totalDistance) * 100) : target === current && target != null ? 100 : 0;
+  const remaining = target != null && current != null ? Math.abs(target - current) : null;
+  const recent = entries.slice(-6);
+  const spanWeeks = recent.length > 1 ? Math.max(.14, (+recent.at(-1)!.date - +recent[0].date) / 604800000) : 0;
+  const weeklyRate = spanWeeks ? (recent.at(-1)!.value - recent[0].value) / spanWeeks : 0;
+  const movingTowardGoal = direction !== 0 && weeklyRate * direction > .02;
+  const etaWeeks = movingTowardGoal && remaining != null ? Math.ceil(remaining / Math.abs(weeklyRate)) : null;
+  const reached = remaining != null && remaining <= .25;
+  const motivation = reached
+    ? "Meta alcançada. Isso não foi sorte — foi consistência acumulada."
+    : movingTowardGoal && progress >= 60
+      ? "Você já percorreu a maior parte do caminho. Agora é proteger o ritmo."
+      : movingTowardGoal
+        ? "A tendência está na direção certa. Pequenas semanas consistentes vencem grandes arrancadas."
+        : entries.length > 1
+          ? "O peso oscila. Olhe a tendência, mantenha o treino e registre a próxima medição."
+          : "Seu primeiro registro é o ponto de partida, não um julgamento. Continue aparecendo.";
+  const chartValues = entries.map((entry) => entry.value).concat(target == null ? [] : [target]);
+  const chartMin = Math.min(...chartValues);
+  const chartMax = Math.max(...chartValues);
+  const padding = Math.max(1.5, (chartMax - chartMin) * .18);
+  const low = chartMin - padding;
+  const high = chartMax + padding;
+  const y = (value: number) => 92 - ((value - low) / Math.max(1, high - low)) * 78;
+  const path = entries.map((entry, index) => `${index ? "L" : "M"} ${(index * 100) / Math.max(1, entries.length - 1)} ${y(entry.value)}`).join(" ");
+  const active = hovered == null ? null : entries[hovered];
+  const activeX = hovered == null ? 0 : (hovered * 100) / Math.max(1, entries.length - 1);
+  if (target == null) return (
+    <section className="weight-goal-empty">
+      <div className="weight-goal-empty-icon"><Target /></div>
+      <div><p className="eyebrow">JORNADA DE PESO</p><h2>Transforme uma meta em um caminho visível.</h2><p>Defina um peso-alvo para acompanhar progresso, ritmo e receber motivações ajustadas à sua evolução.</p></div>
+      <button onClick={onConfigure}>Definir minha meta <ChevronRight /></button>
+    </section>
+  );
+  return (
+    <section className="weight-goal-section">
+      <div className="weight-goal-head">
+        <div><p className="eyebrow">JORNADA DE PESO</p><h2>Sua meta está ganhando forma.</h2><p>O gráfico considera suas medições registradas no Hevy.</p></div>
+        <button onClick={onConfigure}><Settings2 /> Ajustar meta</button>
+      </div>
+      <div className="weight-goal-layout">
+        <article className="weight-progress-card">
+          <div className="weight-progress-ring" style={{ "--weight-progress": `${progress * 3.6}deg` } as React.CSSProperties}>
+            <div><strong>{number.format(progress)}%</strong><span>do caminho</span></div>
+          </div>
+          <div className="weight-progress-copy">
+            <span>{reached ? "META CONQUISTADA" : "PROGRESSO GERAL"}</span>
+            <h3>{current != null ? `${number.format(current)} kg` : "Sem medição"} <small>→ {number.format(target)} kg</small></h3>
+            <p>{remaining != null ? reached ? "Você chegou ao peso-alvo." : `Faltam ${number.format(remaining)} kg para a meta.` : "Registre seu peso no Hevy para começar."}</p>
+          </div>
+          <div className="weight-motivation"><Sparkles /><p>{motivation}</p></div>
+        </article>
+        <article className="weight-chart-card">
+          <div className="weight-chart-kpis">
+            <div><span>RITMO RECENTE</span><strong>{recent.length > 1 ? `${weeklyRate > 0 ? "+" : ""}${number.format(weeklyRate)} kg` : "—"}</strong><small>por semana</small></div>
+            <div><span>PREVISÃO</span><strong>{reached ? "Concluída" : etaWeeks != null && etaWeeks <= 104 ? `${etaWeeks} sem.` : "Em análise"}</strong><small>{etaWeeks != null && !reached ? "mantendo o ritmo" : "mais registros ajudam"}</small></div>
+            <div><span>META</span><strong>{number.format(target)} kg</strong><small>peso-alvo</small></div>
+          </div>
+          {entries.length > 1 ? <div className="goal-chart" onPointerMove={(event) => { const rect=event.currentTarget.getBoundingClientRect(); setHovered(Math.round(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width))*(entries.length-1))); }} onPointerLeave={() => setHovered(null)}>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Evolução do peso até a meta">
+              <defs><linearGradient id="weight-goal-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c7f34d" stopOpacity=".28"/><stop offset="1" stopColor="#c7f34d" stopOpacity="0"/></linearGradient></defs>
+              <line className="goal-target-line" x1="0" x2="100" y1={y(target)} y2={y(target)} vectorEffect="non-scaling-stroke" />
+              <path className="goal-area" d={`${path} L 100 100 L 0 100 Z`} fill="url(#weight-goal-area)" />
+              <path className="goal-line" d={path} vectorEffect="non-scaling-stroke" />
+            </svg>
+            <span className="goal-target-label" style={{ top: `${y(target)}%` }}>META {number.format(target)} KG</span>
+            {active && <div className={`goal-chart-cursor ${activeX > 72 ? "align-right" : ""}`} style={{ left: `${activeX}%` }}><i/><b style={{ top: `${y(active.value)}%` }}/><div style={{ top: `${Math.max(4,y(active.value)-5)}%` }}><small>{active.label}</small><strong>{number.format(active.value)} kg</strong></div></div>}
+            <div className="goal-chart-dates"><span>{entries[0].label}</span><span>{entries.at(-1)!.label}</span></div>
+          </div> : <div className="weight-chart-empty"><Scale /><span>Registre mais uma medição no Hevy para formar sua curva.</span></div>}
+        </article>
+      </div>
+    </section>
+  );
+}
+
 type MuscleState = {
   sets: number;
   last: number | null;
@@ -2157,6 +2257,7 @@ export default function Dashboard() {
         {data && preferences.showInsights && (
           <PersonalInsights data={data} prefs={preferences} />
         )}
+        {data && <WeightGoalJourney data={data} target={preferences.targetWeight} onConfigure={() => setSettingsOpen(true)} />}
         {data && <CoachCTA data={data} />}
         {data && <MuscleRecoveryMap data={data} bodyModel={preferences.bodyModel} />}
         <section className="analytics-grid single">
