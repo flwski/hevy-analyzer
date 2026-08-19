@@ -1197,6 +1197,7 @@ function DeepAnalytics({
 type Preferences = {
   weeklyGoal: number;
   targetWeight: number;
+  bodyModel: "male" | "female";
   showInsights: boolean;
   showAdvanced: boolean;
   showHistory: boolean;
@@ -1204,6 +1205,7 @@ type Preferences = {
 const defaultPreferences: Preferences = {
   weeklyGoal: 5,
   targetWeight: 120,
+  bodyModel: "male",
   showInsights: true,
   showAdvanced: true,
   showHistory: true,
@@ -1366,7 +1368,7 @@ function CoachCTA({ data }: { data: DashboardPayload }) {
   const days = priority ? Math.floor((Date.now() - priority[1]) / 86400000) : null;
   return <a className="home-coach-cta" href="/coach"><div className="coach-cta-icon"><Sparkles /></div><div className="coach-cta-copy"><span>HEVY COACH</span><h2>Seu próximo treino já tem uma direção.</h2><p>Prontidão, músculos esquecidos, platôs e oportunidades de recorde analisados a partir do seu histórico.</p></div><div className="coach-cta-signal"><span>PRIORIDADE ATUAL</span><strong>{priority ? (muscleNames[priority[0]] ?? priority[0]) : "Analisando"}</strong><small>{days != null ? `${days} dias desde o último estímulo` : "Continue registrando seus treinos"}</small></div><div className="coach-cta-action">Abrir Coach <ChevronRight /></div></a>;
 }
-function MuscleRecoveryMap({ data }: { data: DashboardPayload }) {
+function MuscleRecoveryMap({ data, bodyModel }: { data: DashboardPayload; bodyModel: Preferences["bodyModel"] }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const maskPixels = useRef(new Map<string, Uint8ClampedArray>());
   const [hovered, setHovered] = useState<{
@@ -1436,9 +1438,11 @@ function MuscleRecoveryMap({ data }: { data: DashboardPayload }) {
     untrained: states.filter(([, x]) => x.status === "untrained").length,
   };
   useEffect(() => {
+    maskPixels.current.clear();
+    const maskFolder = bodyModel === "female" ? "muscles-female" : "muscles";
     names.forEach((name) => {
       const image = new Image();
-      image.src = `/assets/muscles/${name}.png`;
+      image.src = `/assets/${maskFolder}/${name}.png`;
       image.onload = () => {
         const canvas = document.createElement("canvas");
         canvas.width = 490;
@@ -1452,7 +1456,7 @@ function MuscleRecoveryMap({ data }: { data: DashboardPayload }) {
         maskPixels.current.set(name, alpha);
       };
     });
-  }, []);
+  }, [bodyModel]);
   const exercisesByMuscle = useMemo(() => {
     const result = new Map<string, { title: string; equipment: string }[]>();
     names.forEach((name) => {
@@ -1549,16 +1553,16 @@ function MuscleRecoveryMap({ data }: { data: DashboardPayload }) {
             <span>COSTAS</span>
           </div>
           <img
-            src="/assets/muscle-map-base.png"
-            alt="Anatomia muscular frontal e traseira"
+            src={bodyModel === "female" ? "/assets/muscle-map-female-base.png" : "/assets/muscle-map-base.png"}
+            alt={`Anatomia muscular ${bodyModel === "female" ? "feminina" : "masculina"}, frontal e traseira`}
           />
           {names.map((name) => (
             <span
               key={name}
               className={`muscle-layer ${state(name).status} ${hovered?.name === name ? "active" : ""}`}
               style={{
-                maskImage: `url(/assets/muscles/${name}.png)`,
-                WebkitMaskImage: `url(/assets/muscles/${name}.png)`,
+                maskImage: `url(/assets/${bodyModel === "female" ? "muscles-female" : "muscles"}/${name}.png)`,
+                WebkitMaskImage: `url(/assets/${bodyModel === "female" ? "muscles-female" : "muscles"}/${name}.png)`,
               }}
             />
           ))}
@@ -1646,7 +1650,7 @@ function SettingsPanel({
   onChange: (p: Preferences) => void;
   onClose: () => void;
 }) {
-  const sections: Array<[keyof Preferences, string]> = [
+  const sections: Array<[keyof Pick<Preferences, "showInsights" | "showAdvanced" | "showHistory">, string]> = [
     ["showInsights", "Insights pessoais"],
     ["showAdvanced", "Análises avançadas"],
     ["showHistory", "Histórico de treinos"],
@@ -1668,6 +1672,16 @@ function SettingsPanel({
           </button>
         </div>
         <div className="setting-fields">
+          <label>
+            <span>Modelo do mapa corporal</span>
+            <select
+              value={value.bodyModel}
+              onChange={(e) => onChange({ ...value, bodyModel: e.target.value as Preferences["bodyModel"] })}
+            >
+              <option value="male">Masculino</option>
+              <option value="female">Feminino</option>
+            </select>
+          </label>
           <label>
             <span>Meta de treinos por semana</span>
             <input
@@ -2084,7 +2098,7 @@ export default function Dashboard() {
           <PersonalInsights data={data} prefs={preferences} />
         )}
         {data && <CoachCTA data={data} />}
-        {data && <MuscleRecoveryMap data={data} />}
+        {data && <MuscleRecoveryMap data={data} bodyModel={preferences.bodyModel} />}
         <section className="analytics-grid single">
           <article className="panel chart-panel">
             <div className="panel-head">

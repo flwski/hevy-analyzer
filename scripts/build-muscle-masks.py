@@ -1,11 +1,19 @@
 from pathlib import Path
+import argparse
 from PIL import Image, ImageDraw, ImageFilter
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "public/assets/muscle-map-reference.png"
-OUT = ROOT / "public/assets/muscles"
+parser = argparse.ArgumentParser()
+parser.add_argument("--source", default="public/assets/muscle-map-reference.png")
+parser.add_argument("--out", default="public/assets/muscles")
+parser.add_argument("--base", default="public/assets/muscle-map-base.png")
+args = parser.parse_args()
+SOURCE = ROOT / args.source
+OUT = ROOT / args.out
+BASE = ROOT / args.base
 OUT.mkdir(parents=True, exist_ok=True)
+BASE.parent.mkdir(parents=True, exist_ok=True)
 
 image = Image.open(SOURCE).convert("RGB")
 w, h = image.size
@@ -19,7 +27,7 @@ base[:, :, :3] = np.where(gray[..., None] < 150, np.array([62, 67, 72]), np.arra
 base[:, :, 3] = body_alpha
 scale = 2
 resample = Image.Resampling.LANCZOS
-Image.fromarray(base, "RGBA").resize((w * scale, h * scale), resample).save(ROOT / "public/assets/muscle-map-base.png", optimize=True)
+Image.fromarray(base, "RGBA").resize((w * scale, h * scale), resample).save(BASE, optimize=True)
 
 # Normalized selectors choose a group; the final edges always come from the
 # charcoal artwork, preserving every anatomical separator in the reference.
@@ -33,10 +41,10 @@ regions = {
     "adductors": [[(.205,.47),(.285,.47),(.285,.67),(.205,.67)]],
     "quadriceps": [[(.14,.46),(.225,.46),(.225,.67),(.14,.67)],[(.275,.46),(.365,.46),(.365,.67),(.275,.67)]],
     "calves": [[(.14,.645),(.23,.645),(.23,.875),(.14,.875)],[(.27,.645),(.355,.645),(.355,.875),(.27,.875)],[(.65,.65),(.735,.65),(.735,.875),(.65,.875)],[(.77,.65),(.855,.65),(.855,.875),(.77,.875)]],
-    "traps": [[(.69,.135),(.815,.135),(.815,.34),(.69,.34)]],
-    "upper_back": [[(.64,.195),(.725,.19),(.74,.38),(.635,.37)],[(.78,.19),(.865,.195),(.87,.37),(.765,.38)]],
-    "lats": [[(.64,.285),(.725,.30),(.745,.455),(.66,.47),(.62,.38)],[(.78,.30),(.865,.285),(.90,.38),(.86,.47),(.765,.455)]],
-    "lower_back": [[(.70,.345),(.815,.345),(.84,.49),(.755,.52),(.675,.49)]],
+    "traps": [[(.705,.14),(.795,.14),(.795,.29),(.705,.29)]],
+    "upper_back": [[(.65,.215),(.72,.20),(.72,.315),(.64,.31)],[(.78,.20),(.85,.215),(.86,.31),(.78,.315)]],
+    "lats": [[(.62,.285),(.705,.30),(.71,.455),(.655,.47),(.615,.38)],[(.795,.30),(.88,.285),(.905,.38),(.86,.47),(.79,.455)]],
+    "lower_back": [[(.705,.29),(.795,.29),(.81,.49),(.75,.52),(.69,.49)]],
     "glutes": [[(.65,.43),(.755,.43),(.755,.56),(.645,.56)],[(.755,.43),(.86,.43),(.865,.56),(.755,.56)]],
     "hamstrings": [[(.645,.535),(.755,.535),(.745,.69),(.64,.69)],[(.755,.535),(.865,.535),(.87,.69),(.765,.69)]],
 }
