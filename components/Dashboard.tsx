@@ -1196,7 +1196,7 @@ function DeepAnalytics({
 
 type Preferences = {
   weeklyGoal: number;
-  targetWeight: number;
+  targetWeight: number | null;
   bodyModel: "male" | "female";
   showInsights: boolean;
   showAdvanced: boolean;
@@ -1204,7 +1204,7 @@ type Preferences = {
 };
 const defaultPreferences: Preferences = {
   weeklyGoal: 5,
-  targetWeight: 120,
+  targetWeight: null,
   bodyModel: "male",
   showInsights: true,
   showAdvanced: true,
@@ -1268,7 +1268,7 @@ function PersonalInsights({
     (weekly / Math.max(1, prefs.weeklyGoal)) * 100,
   );
   const weightRemaining =
-    latestWeight != null ? latestWeight - prefs.targetWeight : null;
+    latestWeight != null && prefs.targetWeight != null ? latestWeight - prefs.targetWeight : null;
   return (
     <section className="personal-section">
       <div className="section-head">
@@ -1292,9 +1292,11 @@ function PersonalInsights({
               : "Sem dados"}
           </strong>
           <p>
-            {weightChange != null && weightChange < 0
+            {weightChange != null && weightChange < 0 && prefs.targetWeight != null
               ? `Redução desde ${new Date(`${measurements[0].date}T12:00:00`).toLocaleDateString("pt-BR", { month: "short" })}. Faltam ${number.format(Math.max(0, weightRemaining ?? 0))} kg para sua meta.`
-              : "Registre seu peso para acompanhar a tendência."}
+              : prefs.targetWeight == null
+                ? "Defina uma meta de peso quando isso fizer sentido para você."
+                : "Registre seu peso para acompanhar a tendência."}
           </p>
         </article>
         <article className="personal-card">
@@ -1704,10 +1706,11 @@ function SettingsPanel({
               min="30"
               max="300"
               step="0.1"
-              value={value.targetWeight}
+              value={value.targetWeight ?? ""}
               onChange={(e) =>
-                onChange({ ...value, targetWeight: Number(e.target.value) })
+                onChange({ ...value, targetWeight: e.target.value ? Number(e.target.value) : null })
               }
+              placeholder="Opcional"
             />
           </label>
         </div>
@@ -1728,6 +1731,54 @@ function SettingsPanel({
         <button className="primary save-settings" onClick={onClose}>
           Salvar preferências
         </button>
+      </section>
+    </div>
+  );
+}
+
+function AthleteSetup({
+  value,
+  onSave,
+}: {
+  value: Preferences;
+  onSave: (value: Preferences) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState(value);
+  const [saving, setSaving] = useState(false);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    await onSave(draft);
+    setSaving(false);
+  }
+  return (
+    <div className="analysis-overlay onboarding-overlay">
+      <section className="athlete-setup">
+        <div className="setup-progress"><i /><i className="active" /><i /></div>
+        <div className="setup-icon"><Sparkles /></div>
+        <p className="eyebrow">PERSONALIZAÇÃO INICIAL</p>
+        <h1>Vamos deixar o Hevy Analyzer com a sua cara.</h1>
+        <p>Você configura uma vez. Suas escolhas voltam automaticamente sempre que entrar.</p>
+        <form onSubmit={submit}>
+          <fieldset>
+            <legend>Qual modelo corporal deseja usar?</legend>
+            <div className="body-model-options">
+              <button type="button" className={draft.bodyModel === "male" ? "selected" : ""} onClick={() => setDraft({ ...draft, bodyModel: "male" })}>
+                <span>♂</span><strong>Masculino</strong><small>Mapa anatômico masculino</small>{draft.bodyModel === "male" && <Check />}
+              </button>
+              <button type="button" className={draft.bodyModel === "female" ? "selected" : ""} onClick={() => setDraft({ ...draft, bodyModel: "female" })}>
+                <span>♀</span><strong>Feminino</strong><small>Mapa anatômico feminino</small>{draft.bodyModel === "female" && <Check />}
+              </button>
+            </div>
+          </fieldset>
+          <label className="setup-weight">
+            <span>Meta de peso <small>OPCIONAL</small></span>
+            <div><Scale /><input type="number" min="25" max="400" step="0.1" value={draft.targetWeight ?? ""} onChange={(e) => setDraft({ ...draft, targetWeight: e.target.value ? Number(e.target.value) : null })} placeholder="Ex.: 75" /><b>kg</b></div>
+            <small>Você pode deixar vazio e definir depois nas configurações.</small>
+          </label>
+          <button className="primary setup-submit" disabled={saving}>{saving ? <><RefreshCw className="spin" /> Salvando…</> : <>Começar minha análise <ChevronRight /></>}</button>
+        </form>
+        <div className="setup-security"><Check /> Preferências protegidas e vinculadas ao seu perfil Hevy</div>
       </section>
     </div>
   );
@@ -1811,8 +1862,8 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
         <div className="security-note">
           <Check />
           <span>
-            Sua chave é criptografada em um cookie de sessão e nunca fica
-            disponível para scripts do navegador.
+            Sua chave é criptografada, nunca fica disponível para scripts do
+            navegador e mantém sua conta conectada neste dispositivo.
           </span>
         </div>
         <a
@@ -1841,6 +1892,7 @@ export default function Dashboard() {
     useState<Preferences>(defaultPreferences);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [configured, setConfigured] = useState<boolean | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1856,6 +1908,16 @@ export default function Dashboard() {
       if (!r.ok) throw new Error(json.error);
       setData(json);
       setAuthenticated(true);
+      try {
+        const preferencesResponse = await fetch("/api/preferences");
+        if (preferencesResponse.ok) {
+          const saved = await preferencesResponse.json();
+          if (saved.preferences) {
+            setPreferences({ ...defaultPreferences, ...saved.preferences });
+            setConfigured(saved.preferences.configured === true);
+          }
+        }
+      } catch {}
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro inesperado.");
     } finally {
@@ -1876,21 +1938,19 @@ export default function Dashboard() {
     setTheme(initial);
     document.documentElement.dataset.theme = initial;
   }, []);
-  useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem("hevy-preferences");
-      if (saved)
-        setPreferences({ ...defaultPreferences, ...JSON.parse(saved) });
-    } catch {}
-  }, []);
-  function updatePreferences(next: Preferences) {
+  async function updatePreferences(next: Preferences) {
     setPreferences(next);
-    sessionStorage.setItem("hevy-preferences", JSON.stringify(next));
+    const response = await fetch("/api/preferences", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(next),
+    });
+    if (response.ok) setConfigured(true);
   }
   async function logout() {
     await fetch("/api/auth", { method: "DELETE" });
-    sessionStorage.removeItem("hevy-preferences");
     setPreferences(defaultPreferences);
+    setConfigured(null);
     setData(null);
     setAuthenticated(false);
   }
@@ -2207,6 +2267,9 @@ export default function Dashboard() {
           onChange={updatePreferences}
           onClose={() => setSettingsOpen(false)}
         />
+      )}
+      {authenticated && data && configured === false && (
+        <AthleteSetup value={preferences} onSave={updatePreferences} />
       )}
     </div>
   );

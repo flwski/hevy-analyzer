@@ -31,7 +31,7 @@ export async function getSessionApiKey() {
 }
 
 export async function setSession(apiKey: string) {
-  (await cookies()).set(COOKIE_NAME, await encryptApiKey(apiKey), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 12 });
+  (await cookies()).set(COOKIE_NAME, await encryptApiKey(apiKey), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
 }
 
 export async function clearSession() { (await cookies()).delete(COOKIE_NAME); }

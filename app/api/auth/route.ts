@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { clearSession, setSession } from "@/lib/session";
+import { clearSession, encryptApiKey, setSession } from "@/lib/session";
 import { validateHevyKey } from "@/lib/hevy";
+import { rememberUser } from "@/lib/user-preferences";
 
 export const runtime = "nodejs";
 
@@ -10,7 +11,8 @@ export async function POST(request: NextRequest) {
     if (typeof apiKey !== "string" || !/^[0-9a-f-]{36}$/i.test(apiKey)) return NextResponse.json({ error: "Informe uma API key válida." }, { status: 400 });
     const user = await validateHevyKey(apiKey.trim());
     await setSession(apiKey.trim());
-    return NextResponse.json({ user: user.data });
+    const preferences = await rememberUser(user.data.id, await encryptApiKey(apiKey.trim()));
+    return NextResponse.json({ user: user.data, preferences });
   } catch { return NextResponse.json({ error: "A API key não foi aceita pelo Hevy." }, { status: 401 }); }
 }
 
