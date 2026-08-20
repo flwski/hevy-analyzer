@@ -1999,8 +1999,11 @@ export default function Dashboard() {
     null,
   );
   const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [preferences, setPreferences] =
-    useState<Preferences>(defaultPreferences);
+  const [preferences, setPreferences] = useState<Preferences>(() => {
+    if (typeof window === "undefined") return defaultPreferences;
+    const cachedAccent = localStorage.getItem("hevy-accent");
+    return { ...defaultPreferences, accentColor: cachedAccent && /^#[0-9a-f]{6}$/i.test(cachedAccent) ? cachedAccent : defaultPreferences.accentColor };
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [configured, setConfigured] = useState<boolean | null>(null);
@@ -2025,6 +2028,7 @@ export default function Dashboard() {
           const saved = await preferencesResponse.json();
           if (saved.preferences) {
             setPreferences({ ...defaultPreferences, ...saved.preferences });
+            localStorage.setItem("hevy-accent", saved.preferences.accentColor ?? defaultPreferences.accentColor);
             setConfigured(saved.preferences.configured === true);
           }
         }
@@ -2055,6 +2059,7 @@ export default function Dashboard() {
   }, [preferences.accentColor]);
   async function updatePreferences(next: Preferences) {
     setPreferences(next);
+    localStorage.setItem("hevy-accent", next.accentColor);
     const response = await fetch("/api/preferences", {
       method: "PATCH",
       headers: { "content-type": "application/json" },
