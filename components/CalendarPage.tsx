@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Activity, CalendarDays, ChevronLeft, ChevronRight, Flame, Target } from "lucide-react";
+import { Activity, CalendarDays, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Sparkles, Target } from "lucide-react";
 import AppSidebar from "./AppSidebar";
 import { ExerciseAnalysis, WorkoutAnalysis, WorkoutCalendar } from "./Dashboard";
 import type { DashboardPayload, HevyWorkout } from "@/lib/types";
@@ -69,7 +69,7 @@ export default function CalendarPage() {
   const [selectedWorkout, setSelectedWorkout] = useState<HevyWorkout | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<{ name: string; templateId: string } | null>(null);
   useEffect(() => { fetch("/api/dashboard").then(async response => { if (response.status === 401) { location.href = "/"; return null; } return response.json(); }).then(value => value && setData(value)).finally(() => setLoading(false)); }, []);
-  const summary = useMemo(() => { if (!data) return null; const now = new Date(); const month = data.workouts.filter(workout => { const day = new Date(workout.start_time); return day.getMonth() === now.getMonth() && day.getFullYear() === now.getFullYear(); }); const unique = new Set(month.map(workout => new Date(workout.start_time).toDateString())).size; const volume = month.reduce((sum, workout) => sum + workout.exercises.flatMap(exercise => exercise.sets).reduce((total, set) => total + (set.weight_kg ?? 0) * (set.reps ?? 0), 0), 0); return { count: month.length, unique, volume }; }, [data]);
+  const summary = useMemo(() => { if (!data) return null; const now = new Date(); const month = data.workouts.filter(workout => { const day = new Date(workout.start_time); return day.getMonth() === now.getMonth() && day.getFullYear() === now.getFullYear(); }); const previousDate = new Date(now.getFullYear(), now.getMonth() - 1, 1); const previous = data.workouts.filter(workout => { const day = new Date(workout.start_time); return day.getMonth() === previousDate.getMonth() && day.getFullYear() === previousDate.getFullYear(); }); const unique = new Set(month.map(workout => new Date(workout.start_time).toDateString())).size; const volume = month.reduce((sum, workout) => sum + workoutVolume(workout), 0); const duration = month.reduce((sum, workout) => sum + Math.max(0, (+new Date(workout.end_time) - +new Date(workout.start_time)) / 60000), 0); const weekdays = new Map<number, number>(); data.workouts.forEach(workout => { const day = new Date(workout.start_time).getDay(); weekdays.set(day, (weekdays.get(day) ?? 0) + 1); }); const favorite = [...weekdays].sort((a,b) => b[1]-a[1])[0]?.[0]; const orderedDays = [...new Set(data.workouts.map(workout => new Date(workout.start_time).setHours(12,0,0,0)))].sort((a,b)=>b-a).slice(0,16); const gaps = orderedDays.slice(0,-1).map((day,index)=>(day-orderedDays[index+1])/86400000); const averageGap = gaps.length ? gaps.reduce((sum,gap)=>sum+gap,0)/gaps.length : 0; const change = previous.length ? (month.length / previous.length - 1) * 100 : null; return { count: month.length, unique, volume, averageDuration: month.length ? duration/month.length : 0, favorite: favorite == null ? "—" : ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"][favorite], averageGap, change }; }, [data]);
   if (loading || !data) return <main className="center-state"><div className="loader" /><p>{"Montando seu calend\u00e1rio\u2026"}</p></main>;
   function openWorkout(id: string) { setSelectedWorkout(data!.workouts.find(workout => workout.id === id) ?? null); setSelectedExercise(null); }
   return <div className="app-shell">
@@ -78,6 +78,12 @@ export default function CalendarPage() {
       <header><div><p className="eyebrow">PLANEJAMENTO</p><h1>{"Calend\u00e1rio de treinos"}</h1><p className="subtitle">{"Enxergue sua consist\u00eancia, ritmo e distribui\u00e7\u00e3o ao longo do tempo."}</p></div></header>
       <section className="page-summary"><article><CalendarDays /><div><span>{"Treinos neste m\u00eas"}</span><strong>{summary?.count ?? 0}</strong></div></article><article><Flame /><div><span>Dias ativos</span><strong>{summary?.unique ?? 0}</strong></div></article><article><Target /><div><span>Volume mensal</span><strong>{number.format((summary?.volume ?? 0) / 1000)} t</strong></div></article></section>
       <YearHeatmap workouts={data.workouts} onOpenWorkout={openWorkout} />
+      <section className="calendar-insights">
+        <article><div><Gauge /></div><span>Ritmo mensal</span><strong>{summary?.change == null ? "Primeira leitura" : `${summary.change >= 0 ? "+" : ""}${number.format(summary.change)}%`}</strong><small>comparado ao mês anterior</small></article>
+        <article><div><Clock3 /></div><span>Duração média</span><strong>{number.format(summary?.averageDuration ?? 0)} min</strong><small>por sessão neste mês</small></article>
+        <article><div><CalendarDays /></div><span>Intervalo típico</span><strong>{number.format(summary?.averageGap ?? 0)} dias</strong><small>entre os últimos treinos</small></article>
+        <article className="calendar-coach-note"><Sparkles /><div><span>PADRÃO DO ATLETA</span><strong>{summary?.favorite ?? "—"}</strong><small>é o dia em que você mais costuma treinar</small></div></article>
+      </section>
       <WorkoutCalendar workouts={data.workouts} onOpenWorkout={openWorkout} />
       <section className="calendar-tip panel"><Activity /><div><p className="eyebrow">{"LEITURA R\u00c1PIDA"}</p><h2>{"Consist\u00eancia vence intensidade isolada."}</h2><p>{"Selecione um treino no calend\u00e1rio para analisar a sess\u00e3o e abrir a progress\u00e3o individual de cada exerc\u00edcio."}</p></div><ChevronRight /></section>
       <footer><span><Activity /> Dados sincronizados com Hevy</span><span>Atualizado {new Date(data.fetchedAt).toLocaleString("pt-BR")}</span></footer>

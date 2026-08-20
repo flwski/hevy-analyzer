@@ -323,6 +323,17 @@ export default function CoachPage() {
       };
     });
     const maxWeeklyLoad = Math.max(...weeklyLoad.map((week) => week.volume), 1);
+    const recentFour = weeklyLoad.slice(-4);
+    const activeWeeks = recentFour.filter((week) => week.workouts > 0).length;
+    const consistency = Math.round((activeWeeks / Math.max(1, recentFour.length)) * 100);
+    const averageDuration = last7.length ? last7Minutes / last7.length : 0;
+    const recentMuscles = new Set<string>();
+    last7.forEach((workout) => workout.exercises.forEach((exercise) => {
+      const template = templates.get(exercise.exercise_template_id);
+      if (template?.primary_muscle_group) recentMuscles.add(template.primary_muscle_group);
+    }));
+    const orderedDates = [...new Set(data.workouts.slice(0, 30).map((workout) => new Date(workout.start_time).setHours(12, 0, 0, 0)))].sort((a,b) => b-a);
+    const longestRecentGap = orderedDates.slice(0,-1).reduce((best, day, index) => Math.max(best, (day - orderedDates[index+1]) / 86400000), 0);
     const actions = [
       ...(targets[0]
         ? [
@@ -375,6 +386,7 @@ export default function CoachPage() {
       weeklyLoad,
       maxWeeklyLoad,
       actions,
+      rhythm: { consistency, activeWeeks, averageDuration, muscleCoverage: recentMuscles.size, longestRecentGap },
       quality: { rpeCoverage, routineAdherence, density, dataConfidence },
     };
   }, [data]);
@@ -649,6 +661,15 @@ export default function CoachPage() {
             <span>Cobertura de RPE</span>
             <strong>{number.format(coach.quality.rpeCoverage)}%</strong>
             <small>séries com esforço informado</small>
+          </div>
+        </section>
+        <section className="coach-rhythm">
+          <div className="coach-rhythm-intro"><BrainCircuit /><div><p className="eyebrow">RITMO DO ATLETA</p><h2>Consistência também é performance.</h2><p>{coach.rhythm.consistency >= 75 ? "Você vem protegendo a rotina. O próximo ganho é manter a qualidade das sessões." : "Seu maior potencial agora está em reduzir as pausas longas e tornar o treino previsível."}</p></div></div>
+          <div className="coach-rhythm-metrics">
+            <article><span>Regularidade</span><strong>{coach.rhythm.consistency}%</strong><small>{coach.rhythm.activeWeeks}/4 semanas ativas</small></article>
+            <article><span>Sessão média</span><strong>{number.format(coach.rhythm.averageDuration)} min</strong><small>últimos sete dias</small></article>
+            <article><span>Cobertura muscular</span><strong>{coach.rhythm.muscleCoverage}/{trackedMuscles.length}</strong><small>grupos na semana</small></article>
+            <article><span>Maior pausa recente</span><strong>{number.format(coach.rhythm.longestRecentGap)} dias</strong><small>últimos 30 treinos</small></article>
           </div>
         </section>
         <section className="coach-grid coach-primary">
