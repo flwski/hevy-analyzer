@@ -4366,10 +4366,10 @@ html[data-theme="light"] .coach-hero{background:radial-gradient(circle at 12% 50
 }
 
 /* Global action polish */
-.notification-center{position:relative;display:flex;width:42px;height:42px;flex:none}
+.notification-center{position:relative;display:flex;width:42px;height:42px;flex:none;z-index:auto!important}
 .notification-center>.notification-head{
   position:static!important;inset:auto!important;width:42px!important;height:42px!important;
-  margin:0!important;transform:none!important;box-shadow:none!important;border-radius:10px!important;background:var(--surface)!important
+  margin:0!important;transform:none!important;box-shadow:none!important;border-radius:10px!important;background:var(--surface)!important;z-index:auto!important
 }
 .notification-center>.notification-panel{
   position:absolute!important;top:52px!important;right:0!important;bottom:auto!important;left:auto!important
@@ -4424,6 +4424,10 @@ html[data-theme="light"] .coach-hero{background:radial-gradient(circle at 12% 50
 .setup-submit{height:48px;border:0;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px}.setup-submit svg{width:16px}.setup-security{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:19px;color:var(--muted);font-size:8px}.setup-security svg{width:12px;color:var(--lime)}
 html[data-theme="light"] .onboarding-overlay{background:rgba(224,228,220,.76)}
 @media(max-width:560px){.athlete-setup{padding:24px 16px;border-radius:20px}.body-model-options{grid-template-columns:1fr}.athlete-setup h1{font-size:25px}.athlete-setup>p:not(.eyebrow){font-size:11px}}
+
+/* Persistent accent palette */
+.accent-setting{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface2)}.accent-setting>div:first-child{display:grid;gap:4px}.accent-setting>div:first-child>span{color:var(--muted);font-size:9px}.accent-options{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:13px}.accent-options button{--swatch:#c7f34d;position:relative;width:34px;height:34px;padding:0;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--swatch) 30%,var(--line));border-radius:10px;background:color-mix(in srgb,var(--swatch) 7%,var(--surface));cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.accent-options button:hover{transform:translateY(-2px);border-color:var(--swatch)}.accent-options button.selected{border-color:var(--swatch);box-shadow:0 0 0 3px color-mix(in srgb,var(--swatch) 14%,transparent)}.accent-options button>i{width:18px;height:18px;border-radius:6px;background:var(--swatch);box-shadow:0 4px 12px color-mix(in srgb,var(--swatch) 28%,transparent)}.accent-options button>svg{position:absolute;right:-4px;top:-5px;width:14px;height:14px;padding:2px;border-radius:50%;background:var(--swatch);color:#101419;box-shadow:0 0 0 2px var(--surface2)}
+@media(max-width:480px){.accent-options{justify-content:space-between;gap:6px}.accent-options button{width:31px;height:31px}}
 
 /* Weight goal journey */
 .weight-goal-section{margin-top:34px}.weight-goal-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:14px}.weight-goal-head h2{margin-top:5px;font-size:24px}.weight-goal-head p:last-child{margin:6px 0 0;color:var(--muted);font-size:10px}.weight-goal-head>button{height:37px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:9px;font-weight:700;cursor:pointer}.weight-goal-head>button:hover{border-color:var(--lime);color:var(--lime)}.weight-goal-head>button svg{width:14px}

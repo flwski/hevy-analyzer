@@ -134,8 +134,8 @@ function LineChart({
               x2="0"
               y2="1"
             >
-              <stop offset="0" stopColor="#c7f34d" stopOpacity=".35" />
-              <stop offset="1" stopColor="#c7f34d" stopOpacity="0" />
+              <stop offset="0" stopColor="var(--lime)" stopOpacity=".35" />
+              <stop offset="1" stopColor="var(--lime)" stopOpacity="0" />
             </linearGradient>
           </defs>
           <g className="chart-reveal">
@@ -1195,6 +1195,7 @@ function DeepAnalytics({
 }
 
 type Preferences = {
+  accentColor: string;
   weeklyGoal: number;
   targetWeight: number | null;
   bodyModel: "male" | "female";
@@ -1203,6 +1204,7 @@ type Preferences = {
   showHistory: boolean;
 };
 const defaultPreferences: Preferences = {
+  accentColor: "#c7f34d",
   weeklyGoal: 5,
   targetWeight: null,
   bodyModel: "male",
@@ -1442,7 +1444,7 @@ function WeightGoalJourney({
           </div>
           {entries.length > 1 ? <div className="goal-chart" onPointerMove={(event) => { const rect=event.currentTarget.getBoundingClientRect(); setHovered(Math.round(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width))*(entries.length-1))); }} onPointerLeave={() => setHovered(null)}>
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Evolução do peso até a meta">
-              <defs><linearGradient id="weight-goal-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c7f34d" stopOpacity=".28"/><stop offset="1" stopColor="#c7f34d" stopOpacity="0"/></linearGradient></defs>
+              <defs><linearGradient id="weight-goal-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--lime)" stopOpacity=".28"/><stop offset="1" stopColor="var(--lime)" stopOpacity="0"/></linearGradient></defs>
               <line className="goal-target-line" x1="0" x2="100" y1={y(target)} y2={y(target)} vectorEffect="non-scaling-stroke" />
               <path className="goal-area" d={`${path} L 100 100 L 0 100 Z`} fill="url(#weight-goal-area)" />
               <path className="goal-line" d={path} vectorEffect="non-scaling-stroke" />
@@ -1814,6 +1816,15 @@ function SettingsPanel({
             />
           </label>
         </div>
+        <div className="accent-setting">
+          <div><p className="eyebrow">COR DE DESTAQUE</p><span>Escolha a personalidade visual do seu dashboard.</span></div>
+          <div className="accent-options">
+            {[
+              ["#c7f34d", "Verde"], ["#55b8ff", "Azul"], ["#a78bfa", "Roxo"],
+              ["#ff9f43", "Laranja"], ["#ff6fae", "Rosa"], ["#35e0d0", "Turquesa"], ["#ff6572", "Vermelho"],
+            ].map(([color, label]) => <button key={color} type="button" className={value.accentColor === color ? "selected" : ""} style={{ "--swatch": color } as React.CSSProperties} onClick={() => onChange({ ...value, accentColor: color })} title={label} aria-label={`Usar destaque ${label}`}><i />{value.accentColor === color && <Check />}</button>)}
+          </div>
+        </div>
         <div className="settings-list">
           <p className="eyebrow">SEÇÕES VISÍVEIS</p>
           {sections.map(([key, label]) => (
@@ -2038,6 +2049,10 @@ export default function Dashboard() {
     setTheme(initial);
     document.documentElement.dataset.theme = initial;
   }, []);
+  useEffect(() => {
+    document.documentElement.style.setProperty("--lime", preferences.accentColor);
+    document.documentElement.style.setProperty("--lime-dark", `color-mix(in srgb, ${preferences.accentColor} 13%, #101419)`);
+  }, [preferences.accentColor]);
   async function updatePreferences(next: Preferences) {
     setPreferences(next);
     const response = await fetch("/api/preferences", {
