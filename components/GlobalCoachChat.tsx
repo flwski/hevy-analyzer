@@ -5,7 +5,7 @@ import { Bot, ChevronRight, ExternalLink, MessageCircle, Sparkles, X } from "luc
 import { useEffect, useMemo, useState } from "react";
 import type { DashboardPayload, HevyWorkout } from "@/lib/types";
 
-type Screen = "dashboard" | "calendar" | "exercises" | "coach" | "profile";
+type Screen = "dashboard" | "calendar" | "exercises" | "weight" | "coach" | "profile";
 type Prompt = { id: string; label: string; answer: string };
 const fmt = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 const workoutVolume = (w: HevyWorkout) => w.exercises.reduce((a, e) => a + e.sets.reduce((b, s) => b + (s.weight_kg ?? 0) * (s.reps ?? 0), 0), 0);
@@ -60,6 +60,7 @@ export default function GlobalCoachChat({ active, athleteName }: { active: Scree
       dashboard: [{ id: "signal", label: "Qual o principal sinal agora?", answer: c.topMuscle ? `Seu foco dominante foi ${muscle(c.topMuscle[0])}, com ${c.topMuscle[1]} séries efetivas recentes.` : "Estou formando sua linha de base." }],
       calendar: [{ id: "next", label: "Quando devo treinar de novo?", answer: c.latest ? `Seu último treino foi em ${new Date(c.latest.start_time).toLocaleDateString("pt-BR")}. Use o intervalo junto da recuperação do grupo trabalhado.` : "Não encontrei o último treino." }, { id: "rhythm", label: "Qual meu ritmo no calendário?", answer: `Você registrou ${c.last30.length} sessões nos últimos 30 dias.` }],
       exercises: [{ id: "load", label: "Qual minha maior carga recente?", answer: c.topExercise ? `${c.topExercise[0]} lidera com ${fmt.format(c.topExercise[1].max)} kg.` : "Não há carga comparável." }, { id: "tracked", label: "Qual exercício está mais rastreado?", answer: c.topExercise ? `${c.topExercise[0]} soma ${c.topExercise[1].sets} séries em ${c.topExercise[1].sessions.size} sessões recentes.` : "Ainda não há recorrência suficiente." }],
+      weight: [{ id: "weight-trend", label: "Meu ritmo de peso está adequado?", answer: c.weightChange == null ? "Registre pelo menos duas medições para eu separar tendência de oscilação." : `A variação total registrada é ${c.weightChange > 0 ? "+" : ""}${fmt.format(c.weightChange)} kg. Avalie essa tendência junto da força, recuperação e do objetivo configurado.` }, { id: "protect-strength", label: "Como proteger minha força?", answer: "Mantenha os movimentos principais, preserve séries efetivas e evite aumentar déficit e volume de treino ao mesmo tempo. Uma queda persistente de performance merece revisão do plano." }, { id: "weight-noise", label: "Como interpretar oscilações?", answer: "Compare medições feitas em condições parecidas e observe várias semanas. Hidratação, horário e alimentação podem mover um valor isolado sem representar mudança real." }],
       profile: [{ id: "body", label: "Como meu peso evoluiu?", answer: c.weightChange == null ? "Registre pelo menos duas medições para calcular a evolução." : `A variação desde a primeira medição foi ${c.weightChange > 0 ? "+" : ""}${fmt.format(c.weightChange)} kg.` }, { id: "profile-data", label: "Como melhorar meus dados?", answer: "Atualize medidas corporais e registre RPE nas séries principais. Isso melhora minhas leituras de evolução e recuperação." }],
       coach: [],
     };
