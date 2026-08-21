@@ -3007,6 +3007,14 @@ html[data-theme="light"] .profile-hero {
   background:
     radial-gradient(circle at 5% 0%, #b7dc4829, transparent 35%), #fff;
 }
+html[data-theme="light"] .account-panel {
+  background: linear-gradient(
+    120deg,
+    var(--surface),
+    color-mix(in srgb, var(--lime) 10%, var(--surface2))
+  );
+  border-color: color-mix(in srgb, var(--lime) 18%, var(--line));
+}
 html[data-theme="light"] .profile-avatar i {
   border-color: #fff;
 }
