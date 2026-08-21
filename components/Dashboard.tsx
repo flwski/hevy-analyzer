@@ -1402,18 +1402,16 @@ function WeightGoalJourney({
   );
   return (
     <section className="weight-goal-summary">
-        <article className="weight-progress-card compact">
-          <div className="weight-progress-ring" style={{ "--weight-progress": `${progress * 3.6}deg` } as React.CSSProperties}>
-            <div><strong>{number.format(progress)}%</strong><span>do caminho</span></div>
-          </div>
-          <div className="weight-progress-copy">
-            <span>{reached ? "META CONQUISTADA" : "PROGRESSO GERAL"}</span>
-            <h3>{current != null ? `${number.format(current)} kg` : "Sem medição"} <small>→ {number.format(target)} kg</small></h3>
-            <p>{remaining != null ? reached ? "Você chegou ao peso-alvo." : `Faltam ${number.format(remaining)} kg para a meta.` : "Registre seu peso no Hevy para começar."}</p>
-          </div>
-          <div className="weight-motivation"><Sparkles /><p>{motivation}</p></div>
-          <a href="/weight">Abrir plano completo <ChevronRight /></a>
-        </article>
+      <div className="weight-progress-ring" style={{ "--weight-progress": `${progress * 3.6}deg` } as React.CSSProperties}>
+        <div><strong>{number.format(progress)}%</strong><span>do caminho</span></div>
+      </div>
+      <div className="weight-progress-copy">
+        <span>{reached ? "META CONQUISTADA" : "PROGRESSO GERAL"}</span>
+        <h3>{current != null ? `${number.format(current)} kg` : "Sem medição"} <small>→ {number.format(target)} kg</small></h3>
+        <p>{remaining != null ? reached ? "Você chegou ao peso-alvo." : `Faltam ${number.format(remaining)} kg para a meta.` : "Registre seu peso no Hevy para começar."}</p>
+      </div>
+      <div className="weight-motivation"><Sparkles /><p>{motivation}</p></div>
+      <a href="/weight">Abrir plano completo <ChevronRight /></a>
     </section>
   );
 }
