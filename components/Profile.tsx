@@ -1,8 +1,297 @@
 "use client";
-import { useEffect,useMemo,useState } from "react";
-import { Activity,CalendarDays,ChevronRight,Clock3,Dumbbell,ExternalLink,LogOut,Ruler,Scale,ShieldCheck,Target,TrendingDown,Trophy } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Activity,
+  CalendarDays,
+  ChevronRight,
+  Clock3,
+  Dumbbell,
+  ExternalLink,
+  LogOut,
+  Ruler,
+  Scale,
+  ShieldCheck,
+  Target,
+  TrendingDown,
+  Trophy,
+} from "lucide-react";
 import AppSidebar from "./AppSidebar";
-import type { BodyMeasurement,DashboardPayload } from "@/lib/types";
-const number=new Intl.NumberFormat("pt-BR",{maximumFractionDigits:1});const date=new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
-const metricLabels:Array<[keyof BodyMeasurement,string,string]>=[["weight_kg","Peso","kg"],["fat_percent","Gordura corporal","%"],["lean_mass_kg","Massa magra","kg"],["waist","Cintura","cm"],["chest_cm","Peito","cm"],["left_bicep_cm","Bíceps esquerdo","cm"],["right_bicep_cm","Bíceps direito","cm"],["left_thigh","Coxa esquerda","cm"],["right_thigh","Coxa direita","cm"]];
-export default function Profile(){const[data,setData]=useState<DashboardPayload|null>(null);const[loading,setLoading]=useState(true);useEffect(()=>{fetch("/api/dashboard").then(async r=>{if(r.status===401){location.href="/";return null}if(!r.ok)throw new Error();return r.json()}).then(x=>x&&setData(x)).finally(()=>setLoading(false))},[]);const summary=useMemo(()=>{if(!data)return null;const ms=data.bodyMeasurements;const first=ms.find(m=>m.weight_kg!=null);const latest=ms.slice().reverse().find(m=>m.weight_kg!=null);const minutes=data.workouts.reduce((sum,w)=>sum+Math.max(0,(+new Date(w.end_time)-+new Date(w.start_time))/60000),0);const exercises=new Set(data.workouts.flatMap(w=>w.exercises.map(e=>e.exercise_template_id)));return{first,latest,minutes,exercises:exercises.size,change:first?.weight_kg!=null&&latest?.weight_kg!=null?latest.weight_kg-first.weight_kg:null}},[data]);async function logout(){await fetch("/api/auth",{method:"DELETE"});sessionStorage.clear();location.href="/"}if(loading||!data)return <main className="center-state"><div className="loader"/><p>Carregando seu perfil…</p></main>;const latest=data.bodyMeasurements.at(-1);return <div className="app-shell"><AppSidebar active="profile" user={data.user} workoutCount={data.workoutCount}/><main className="content profile-content"><header className="profile-header"><div><p className="eyebrow">MINHA CONTA</p><h1>Perfil do atleta</h1><p className="subtitle">Sua identidade, evolução corporal e resumo de toda a jornada.</p></div><button className="profile-logout" onClick={logout}><LogOut/>Sair da conta</button></header><section className="profile-hero"><div className="profile-avatar">{data.user?.name?.[0]??"H"}<i/></div><div className="profile-identity"><span>ATLETA HEVY</span><h2>{data.user?.name??"Atleta"}</h2><a href={data.user?.url} target="_blank" rel="noreferrer">Ver perfil público <ExternalLink/></a></div><div className="profile-status"><ShieldCheck/><div><strong>Conta conectada</strong><span>Dados sincronizados com segurança</span></div></div></section><section className="profile-stats"><article><div><Dumbbell/></div><span>Treinos concluídos</span><strong>{data.workoutCount}</strong><small>desde {data.workouts.at(-1)?date.format(new Date(data.workouts.at(-1)!.start_time)):"—"}</small></article><article><div><Clock3/></div><span>Tempo total</span><strong>{number.format((summary?.minutes??0)/60)} h</strong><small>registradas em treino</small></article><article><div><Trophy/></div><span>Exercícios praticados</span><strong>{summary?.exercises??0}</strong><small>movimentos diferentes</small></article><article className="accent"><div><TrendingDown/></div><span>Evolução de peso</span><strong>{summary?.change!=null?`${summary.change>0?"+":""}${number.format(summary.change)} kg`:"—"}</strong><small>entre primeira e última medição</small></article></section><div className="profile-grid"><section className="panel measurements-panel"><div className="panel-head"><div><p className="eyebrow">MEDIÇÃO ATUAL</p><h2>Composição corporal</h2></div><Scale/></div>{latest?<><div className="measurement-date"><CalendarDays/>Registrada em {date.format(new Date(`${latest.date}T12:00:00`))}</div><div className="measurement-metrics">{metricLabels.map(([key,label,unit])=>{const value=latest[key];return <div key={key}><span>{label}</span><strong>{typeof value==="number"?`${number.format(value)} ${unit}`:"—"}</strong></div>})}</div></>:<div className="profile-empty"><Ruler/><strong>Nenhuma medição registrada</strong><span>Adicione medidas no Hevy para acompanhar sua evolução aqui.</span></div>}</section><section className="panel journey-panel"><div className="panel-head"><div><p className="eyebrow">JORNADA</p><h2>Linha do tempo</h2></div><Activity/></div><div className="journey-list">{data.bodyMeasurements.slice().reverse().slice(0,8).map((m,i)=><div key={m.date}><i className={i===0?"current":""}/><div><strong>{date.format(new Date(`${m.date}T12:00:00`))}</strong><span>{m.weight_kg!=null?`${number.format(m.weight_kg)} kg`:"Peso não informado"}{m.fat_percent!=null?` · ${number.format(m.fat_percent)}% gordura`:""}</span></div>{i===0&&<b>Atual</b>}</div>)}{!data.bodyMeasurements.length&&<div className="profile-empty"><Target/><span>Sua linha do tempo aparecerá aqui.</span></div>}</div></section></div><section className="account-panel panel"><div><ShieldCheck/><div><p className="eyebrow">SESSÃO E PRIVACIDADE</p><h2>Seus dados permanecem seus.</h2><p>A API key está protegida em cookie criptografado e não é exposta ao navegador. Ao sair, a sessão e as preferências locais são removidas.</p></div></div><button onClick={logout}>Encerrar sessão <ChevronRight/></button></section><footer><span><Activity/> Dados sincronizados com Hevy</span><span>Atualizado {new Date(data.fetchedAt).toLocaleString("pt-BR")}</span></footer></main></div>}
+import type { BodyMeasurement, DashboardPayload } from "@/lib/types";
+import { REMEMBER_TOKEN_KEY } from "@/lib/client-storage";
+const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
+const date = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
+const metricLabels: Array<[keyof BodyMeasurement, string, string]> = [
+  ["weight_kg", "Peso", "kg"],
+  ["fat_percent", "Gordura corporal", "%"],
+  ["lean_mass_kg", "Massa magra", "kg"],
+  ["waist", "Cintura", "cm"],
+  ["chest_cm", "Peito", "cm"],
+  ["left_bicep_cm", "Bíceps esquerdo", "cm"],
+  ["right_bicep_cm", "Bíceps direito", "cm"],
+  ["left_thigh", "Coxa esquerda", "cm"],
+  ["right_thigh", "Coxa direita", "cm"],
+];
+export default function Profile() {
+  const [data, setData] = useState<DashboardPayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch("/api/dashboard")
+      .then(async (r) => {
+        if (r.status === 401) {
+          location.href = "/";
+          return null;
+        }
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((x) => x && setData(x))
+      .finally(() => setLoading(false));
+  }, []);
+  const summary = useMemo(() => {
+    if (!data) return null;
+    const ms = data.bodyMeasurements;
+    const first = ms.find((m) => m.weight_kg != null);
+    const latest = ms
+      .slice()
+      .reverse()
+      .find((m) => m.weight_kg != null);
+    const minutes = data.workouts.reduce(
+      (sum, w) =>
+        sum +
+        Math.max(0, (+new Date(w.end_time) - +new Date(w.start_time)) / 60000),
+      0,
+    );
+    const exercises = new Set(
+      data.workouts.flatMap((w) =>
+        w.exercises.map((e) => e.exercise_template_id),
+      ),
+    );
+    return {
+      first,
+      latest,
+      minutes,
+      exercises: exercises.size,
+      change:
+        first?.weight_kg != null && latest?.weight_kg != null
+          ? latest.weight_kg - first.weight_kg
+          : null,
+    };
+  }, [data]);
+  async function logout() {
+    const rememberToken = localStorage.getItem(REMEMBER_TOKEN_KEY);
+    await fetch("/api/auth", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ rememberToken }),
+    });
+    localStorage.removeItem(REMEMBER_TOKEN_KEY);
+    location.href = "/";
+  }
+  if (loading || !data)
+    return (
+      <main className="center-state">
+        <div className="loader" />
+        <p>Carregando seu perfil…</p>
+      </main>
+    );
+  const latest = data.bodyMeasurements.at(-1);
+  return (
+    <div className="app-shell">
+      <AppSidebar
+        active="profile"
+        user={data.user}
+        workoutCount={data.workoutCount}
+      />
+      <main className="content profile-content">
+        <header className="profile-header">
+          <div>
+            <p className="eyebrow">MINHA CONTA</p>
+            <h1>Perfil do atleta</h1>
+            <p className="subtitle">
+              Sua identidade, evolução corporal e resumo de toda a jornada.
+            </p>
+          </div>
+          <button className="profile-logout" onClick={logout}>
+            <LogOut />
+            Sair da conta
+          </button>
+        </header>
+        <section className="profile-hero">
+          <div className="profile-avatar">
+            {data.user?.name?.[0] ?? "H"}
+            <i />
+          </div>
+          <div className="profile-identity">
+            <span>ATLETA HEVY</span>
+            <h2>{data.user?.name ?? "Atleta"}</h2>
+            <a href={data.user?.url} target="_blank" rel="noreferrer">
+              Ver perfil público <ExternalLink />
+            </a>
+          </div>
+          <div className="profile-status">
+            <ShieldCheck />
+            <div>
+              <strong>Conta conectada</strong>
+              <span>Dados sincronizados com segurança</span>
+            </div>
+          </div>
+        </section>
+        <section className="profile-stats">
+          <article>
+            <div>
+              <Dumbbell />
+            </div>
+            <span>Treinos concluídos</span>
+            <strong>{data.workoutCount}</strong>
+            <small>
+              desde{" "}
+              {data.workouts.at(-1)
+                ? date.format(new Date(data.workouts.at(-1)!.start_time))
+                : "—"}
+            </small>
+          </article>
+          <article>
+            <div>
+              <Clock3 />
+            </div>
+            <span>Tempo total</span>
+            <strong>{number.format((summary?.minutes ?? 0) / 60)} h</strong>
+            <small>registradas em treino</small>
+          </article>
+          <article>
+            <div>
+              <Trophy />
+            </div>
+            <span>Exercícios praticados</span>
+            <strong>{summary?.exercises ?? 0}</strong>
+            <small>movimentos diferentes</small>
+          </article>
+          <article className="accent">
+            <div>
+              <TrendingDown />
+            </div>
+            <span>Evolução de peso</span>
+            <strong>
+              {summary?.change != null
+                ? `${summary.change > 0 ? "+" : ""}${number.format(summary.change)} kg`
+                : "—"}
+            </strong>
+            <small>entre primeira e última medição</small>
+          </article>
+        </section>
+        <div className="profile-grid">
+          <section className="panel measurements-panel">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">MEDIÇÃO ATUAL</p>
+                <h2>Composição corporal</h2>
+              </div>
+              <Scale />
+            </div>
+            {latest ? (
+              <>
+                <div className="measurement-date">
+                  <CalendarDays />
+                  Registrada em{" "}
+                  {date.format(new Date(`${latest.date}T12:00:00`))}
+                </div>
+                <div className="measurement-metrics">
+                  {metricLabels.map(([key, label, unit]) => {
+                    const value = latest[key];
+                    return (
+                      <div key={key}>
+                        <span>{label}</span>
+                        <strong>
+                          {typeof value === "number"
+                            ? `${number.format(value)} ${unit}`
+                            : "—"}
+                        </strong>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="profile-empty">
+                <Ruler />
+                <strong>Nenhuma medição registrada</strong>
+                <span>
+                  Adicione medidas no Hevy para acompanhar sua evolução aqui.
+                </span>
+              </div>
+            )}
+          </section>
+          <section className="panel journey-panel">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">JORNADA</p>
+                <h2>Linha do tempo</h2>
+              </div>
+              <Activity />
+            </div>
+            <div className="journey-list">
+              {data.bodyMeasurements
+                .slice()
+                .reverse()
+                .slice(0, 8)
+                .map((m, i) => (
+                  <div key={m.date}>
+                    <i className={i === 0 ? "current" : ""} />
+                    <div>
+                      <strong>
+                        {date.format(new Date(`${m.date}T12:00:00`))}
+                      </strong>
+                      <span>
+                        {m.weight_kg != null
+                          ? `${number.format(m.weight_kg)} kg`
+                          : "Peso não informado"}
+                        {m.fat_percent != null
+                          ? ` · ${number.format(m.fat_percent)}% gordura`
+                          : ""}
+                      </span>
+                    </div>
+                    {i === 0 && <b>Atual</b>}
+                  </div>
+                ))}
+              {!data.bodyMeasurements.length && (
+                <div className="profile-empty">
+                  <Target />
+                  <span>Sua linha do tempo aparecerá aqui.</span>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+        <section className="account-panel panel">
+          <div>
+            <ShieldCheck />
+            <div>
+              <p className="eyebrow">SESSÃO E PRIVACIDADE</p>
+              <h2>Seus dados permanecem seus.</h2>
+              <p>
+              A API key está protegida e não é exposta ao navegador. Ao sair,
+              a credencial deste dispositivo é revogada; tema e cor visual
+              permanecem salvos como sua preferência local.
+              </p>
+            </div>
+          </div>
+          <button onClick={logout}>
+            Encerrar sessão <ChevronRight />
+          </button>
+        </section>
+        <footer>
+          <span>
+            <Activity /> Dados sincronizados com Hevy
+          </span>
+          <span>
+            Atualizado {new Date(data.fetchedAt).toLocaleString("pt-BR")}
+          </span>
+        </footer>
+      </main>
+    </div>
+  );
+}

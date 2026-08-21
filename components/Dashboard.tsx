@@ -39,6 +39,7 @@ import type {
 } from "@/lib/types";
 import AppSidebar, { AppLogo } from "./AppSidebar";
 import NotificationCenter from "./NotificationCenter";
+import { REMEMBER_TOKEN_KEY, THEME_KEY } from "@/lib/client-storage";
 
 const number = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 const compact = new Intl.NumberFormat("pt-BR", {
@@ -1777,7 +1778,7 @@ function SettingsPanel({
           <div><p className="eyebrow">COR DE DESTAQUE</p><span>Escolha a personalidade visual do seu dashboard.</span></div>
           <div className="accent-options">
             {[
-              ["#c7f34d", "Verde"], ["#55b8ff", "Azul"], ["#a78bfa", "Roxo"],
+              ["#c7f34d", "Verde"], ["#f6c945", "Amarelo"], ["#55b8ff", "Azul"], ["#a78bfa", "Roxo"],
               ["#ff9f43", "Laranja"], ["#ff6fae", "Rosa"], ["#35e0d0", "Turquesa"], ["#ff6572", "Vermelho"],
             ].map(([color, label]) => <button key={color} type="button" className={value.accentColor === color ? "selected" : ""} style={{ "--swatch": color } as React.CSSProperties} onClick={() => onChange({ ...value, accentColor: color })} title={label} aria-label={`Usar destaque ${label}`}><i />{value.accentColor === color && <Check />}</button>)}
           </div>
@@ -1869,6 +1870,7 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error);
+      if (typeof j.rememberToken === "string") localStorage.setItem(REMEMBER_TOKEN_KEY, j.rememberToken);
       setApiKey("");
       onSuccess();
     } catch (e) {
@@ -1969,7 +1971,15 @@ export default function Dashboard() {
     setLoading(true);
     setError("");
     try {
-      const r = await fetch("/api/dashboard");
+      let r = await fetch("/api/dashboard");
+      if (r.status === 401) {
+        const rememberToken = localStorage.getItem(REMEMBER_TOKEN_KEY);
+        if (rememberToken) {
+          const restored = await fetch("/api/auth", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ rememberToken }) });
+          if (restored.ok) r = await fetch("/api/dashboard");
+          else localStorage.removeItem(REMEMBER_TOKEN_KEY);
+        }
+      }
       const json = await r.json();
       if (r.status === 401) {
         setAuthenticated(false);
@@ -1979,6 +1989,13 @@ export default function Dashboard() {
       if (!r.ok) throw new Error(json.error);
       setData(json);
       setAuthenticated(true);
+      if (!localStorage.getItem(REMEMBER_TOKEN_KEY)) {
+        const enrollment = await fetch("/api/auth");
+        if (enrollment.ok) {
+          const remembered = await enrollment.json();
+          if (typeof remembered.rememberToken === "string") localStorage.setItem(REMEMBER_TOKEN_KEY, remembered.rememberToken);
+        }
+      }
       try {
         const preferencesResponse = await fetch("/api/preferences");
         if (preferencesResponse.ok) {
@@ -2000,7 +2017,7 @@ export default function Dashboard() {
     load();
   }, [load]);
   useEffect(() => {
-    const saved = sessionStorage.getItem("hevy-theme");
+    const saved = localStorage.getItem(THEME_KEY);
     const initial =
       saved === "light" || saved === "dark"
         ? saved
@@ -2025,8 +2042,11 @@ export default function Dashboard() {
     if (response.ok) setConfigured(true);
   }
   async function logout() {
-    await fetch("/api/auth", { method: "DELETE" });
-    setPreferences(defaultPreferences);
+    const rememberToken = localStorage.getItem(REMEMBER_TOKEN_KEY);
+    await fetch("/api/auth", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ rememberToken }) });
+    localStorage.removeItem(REMEMBER_TOKEN_KEY);
+    const savedAccent = localStorage.getItem("hevy-accent");
+    setPreferences({ ...defaultPreferences, accentColor: savedAccent && /^#[0-9a-f]{6}$/i.test(savedAccent) ? savedAccent : defaultPreferences.accentColor });
     setConfigured(null);
     setData(null);
     setAuthenticated(false);
@@ -2035,7 +2055,7 @@ export default function Dashboard() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.dataset.theme = next;
-    sessionStorage.setItem("hevy-theme", next);
+    localStorage.setItem(THEME_KEY, next);
   }
 
   const filtered = useMemo(() => {

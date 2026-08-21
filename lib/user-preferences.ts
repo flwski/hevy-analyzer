@@ -30,6 +30,13 @@ export function ensureUserPreferences() {
       updated_at timestamptz NOT NULL DEFAULT now()
     )`;
     await db()`ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS accent_color text NOT NULL DEFAULT '#c7f34d'`;
+    await db()`CREATE TABLE IF NOT EXISTS remembered_devices (
+      token_hash text PRIMARY KEY,
+      user_id text NOT NULL,
+      encrypted_api_key text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      last_used_at timestamptz NOT NULL DEFAULT now()
+    )`;
   })();
   return initialized;
 }
@@ -51,10 +58,22 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
   };
 }
 
-export async function rememberUser(userId: string, encryptedApiKey: string) {
+export async function rememberUser(userId: string, encryptedApiKey: string, rememberTokenHash?: string) {
   await ensureUserPreferences();
   await db()`INSERT INTO user_preferences (user_id,encrypted_api_key) VALUES (${userId},${encryptedApiKey}) ON CONFLICT(user_id) DO UPDATE SET encrypted_api_key=excluded.encrypted_api_key,updated_at=now()`;
+  if (rememberTokenHash) await db()`INSERT INTO remembered_devices (token_hash,user_id,encrypted_api_key) VALUES (${rememberTokenHash},${userId},${encryptedApiKey}) ON CONFLICT(token_hash) DO UPDATE SET encrypted_api_key=excluded.encrypted_api_key,last_used_at=now()`;
   return getUserPreferences(userId);
+}
+
+export async function findRememberedApiKey(rememberTokenHash: string) {
+  await ensureUserPreferences();
+  const rows = await db()`UPDATE remembered_devices SET last_used_at=now() WHERE token_hash=${rememberTokenHash} RETURNING encrypted_api_key` as unknown as Array<{ encrypted_api_key?: string }>;
+  return rows[0]?.encrypted_api_key ?? null;
+}
+
+export async function revokeRememberToken(rememberTokenHash: string) {
+  await ensureUserPreferences();
+  await db()`DELETE FROM remembered_devices WHERE token_hash=${rememberTokenHash}`;
 }
 
 export async function saveUserPreferences(userId: string, encryptedApiKey: string, input: Partial<UserPreferences>) {
@@ -62,7 +81,7 @@ export async function saveUserPreferences(userId: string, encryptedApiKey: strin
   const bodyModel = input.bodyModel === "female" ? "female" : "male";
   const targetWeight = typeof input.targetWeight === "number" && Number.isFinite(input.targetWeight) && input.targetWeight > 0 ? input.targetWeight : null;
   const weeklyGoal = Math.min(14, Math.max(1, Math.round(Number(input.weeklyGoal) || 5)));
-  const allowedAccents = new Set(["#c7f34d", "#55b8ff", "#a78bfa", "#ff9f43", "#ff6fae", "#35e0d0", "#ff6572"]);
+  const allowedAccents = new Set(["#c7f34d", "#f6c945", "#55b8ff", "#a78bfa", "#ff9f43", "#ff6fae", "#35e0d0", "#ff6572"]);
   const accentColor = allowedAccents.has(input.accentColor ?? "") ? input.accentColor! : "#c7f34d";
   await db()`INSERT INTO user_preferences (user_id,encrypted_api_key,accent_color,body_model,target_weight,weekly_goal,show_insights,show_advanced,show_history,configured)
     VALUES (${userId},${encryptedApiKey},${accentColor},${bodyModel},${targetWeight},${weeklyGoal},${input.showInsights !== false},${input.showAdvanced !== false},${input.showHistory !== false},true)

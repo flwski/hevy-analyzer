@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 
 const COOKIE_NAME = "hevy_session";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 400;
 const encoder = new TextEncoder();
 
 async function cryptoKey() {
@@ -26,12 +27,25 @@ export async function decryptApiKey(value: string) {
 }
 
 export async function getSessionApiKey() {
-  const value = (await cookies()).get(COOKIE_NAME)?.value;
-  return value ? decryptApiKey(value) : null;
+  const store = await cookies();
+  const value = store.get(COOKIE_NAME)?.value;
+  const apiKey = value ? await decryptApiKey(value) : null;
+  if (apiKey) store.set(COOKIE_NAME, value!, cookieOptions());
+  return apiKey;
 }
 
 export async function setSession(apiKey: string) {
-  (await cookies()).set(COOKIE_NAME, await encryptApiKey(apiKey), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
+  (await cookies()).set(COOKIE_NAME, await encryptApiKey(apiKey), cookieOptions());
 }
 
 export async function clearSession() { (await cookies()).delete(COOKIE_NAME); }
+
+function cookieOptions() {
+  return { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/", maxAge: COOKIE_MAX_AGE, priority: "high" as const };
+}
+
+export function createRememberToken() { return encode(crypto.getRandomValues(new Uint8Array(32))); }
+export async function hashRememberToken(token: string) {
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(token));
+  return encode(new Uint8Array(digest));
+}
