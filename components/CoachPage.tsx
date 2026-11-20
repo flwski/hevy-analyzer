@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   ArrowRight,
@@ -62,6 +62,7 @@ export default function CoachPage() {
     Array<{ role: "coach" | "athlete"; text: string }>
   >([]);
   const [question, setQuestion] = useState("");
+  const coachPending = useRef(false);
   const [coachTyping, setCoachTyping] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   useEffect(() => {
@@ -443,18 +444,49 @@ export default function CoachPage() {
       return `Sua cobertura de RPE está em ${number.format(coach.quality.rpeCoverage)}%. Registrar o esforço nas séries principais vai melhorar muito minha leitura de fadiga.`;
     return `O sinal mais importante agora é este: ${recommendation} Se me perguntar sobre treino, PR, deload, equilíbrio, platô ou RPE, consigo ser mais específico.`;
   }
-  function askCoach(text: string) {
+  async function askCoach(text: string) {
     const clean = text.trim();
-    if (!clean || coachTyping) return;
+    if (!clean || coachPending.current || !coach || !data) return;
+
+    coachPending.current = true;
     setChat((current) => [...current, { role: "athlete", text: clean }]);
     setCoachTyping(true);
-    window.setTimeout(() => {
-      setChat((current) => [
-        ...current,
-        { role: "coach", text: coachAnswer(clean) },
-      ]);
+    let answer = coachAnswer(clean);
+    try {
+      const pr = coach.prRadar[0];
+      const balance = [...coach.balance].sort((a, b) => a.ratio - b.ratio)[0];
+      const response = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        signal: AbortSignal.timeout(6500),
+        body: JSON.stringify({
+          question: clean,
+          context: {
+            readiness: coach.readiness,
+            rpeCoverage: coach.quality.rpeCoverage,
+            fatiguedGroups: coach.fatigued.length,
+            decliningExercises: coach.declining.length,
+            target: coach.targets[0] && muscleNames[coach.targets[0].name],
+            prExercise: pr?.title.slice(0, 80),
+            prProximity: pr?.prProximity,
+            plateauExercise: coach.plateaus[0]?.title.slice(0, 80),
+            weakerGroup: balance?.weak,
+            balanceRatio: balance?.ratio,
+            truncated: data.truncated,
+          },
+        }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (typeof result.answer === "string" && result.answer.trim()) answer = result.answer;
+      }
+    } catch {
+      // A resposta local continua disponível mesmo sem rede.
+    } finally {
+      setChat((current) => [...current, { role: "coach", text: answer }]);
+      coachPending.current = false;
       setCoachTyping(false);
-    }, 520);
+    }
   }
   return (
     <div className="app-shell">
